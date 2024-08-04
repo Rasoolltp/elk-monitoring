@@ -1,0 +1,36 @@
+input {
+  beats {
+    port => 5044
+  }
+}
+
+filter {
+  if [log_type] == "postfix" {
+    grok {
+      match => {
+        "message" => "%{SYSLOGTIMESTAMP:timestamp} %{SYSLOGHOST:syslog_host} %{DATA:process}\[%{NUMBER:pid}\]: %{GREEDYDATA:syslog_message}"
+      }
+    }
+
+    date {
+      match => ["timestamp", "MMM  d HH:mm:ss", "MMM dd HH:mm:ss"]
+      target => "@timestamp"
+    }
+
+    mutate {
+      rename => { "loglevel" => "severity" }
+      remove_field => [ "timestamp" ]
+    }
+  }
+}
+
+output {
+  elasticsearch {
+    hosts => ["http://elasticsearch:9200"]
+    index => "postfix-logs-%{+YYYY.MM.dd}"
+    user => "elastic"
+    password => "G4C4*GzhKtcI88nmAP+r"
+  }
+  stdout { codec => rubydebug }
+}
+؛

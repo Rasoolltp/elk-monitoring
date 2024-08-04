@@ -1,0 +1,41 @@
+  - job_name: 'smtp_status_tls'
+    metrics_path: /probe
+    params:
+      module: [smtp_starttls]
+    static_configs:
+      - targets: [
+		'your.mail.server.com'		
+	        ]
+    relabel_configs:
+      # Ensure port is 25, pass as URL parameter
+      - source_labels: [__address__]
+        regex: (.*)(:.*)?
+        replacement: ${1}:587
+        target_label: __param_target
+      # Make instance label the target
+      - source_labels: [__param_target]
+        target_label: instance
+      # Actually talk to the blackbox exporter though
+      - target_label: __address__
+        replacement: 127.0.0.1:9115
+
+  - job_name: 'smtp_status'
+    metrics_path: /probe
+    params:
+      module: [smtp_banner]
+    static_configs:
+      - targets: [
+                'your.mail.server.com'
+                ]
+    relabel_configs:
+      # Ensure port is 25, pass as URL parameter
+      - source_labels: [__address__]
+        regex: (.*)(:.*)?
+        replacement: ${1}:25
+        target_label: __param_target
+      # Make instance label the target
+      - source_labels: [__param_target]
+        target_label: instance
+      # Actually talk to the blackbox exporter though
+      - target_label: __address__
+        replacement: 127.0.0.1:9115

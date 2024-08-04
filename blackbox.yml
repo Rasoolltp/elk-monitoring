@@ -1,0 +1,13 @@
+modules:  
+  smtp_starttls:
+    prober: tcp
+    timeout: 20s
+    tcp:
+      preferred_ip_protocol: ip4
+      tls_config:
+        insecure_skip_verify: true
+  smtp_banner:
+    prober: tcp
+    timeout: 20s
+    tcp:
+      preferred_ip_protocol: ip4
