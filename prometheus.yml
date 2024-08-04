@@ -26,3 +26,44 @@ scrape_configs:
     static_configs:
       - targets: ['filebeat:5066'] 
 
+  - job_name: 'smtp_status_tls'
+    metrics_path: /probe
+    params:
+      module: [tcp_connect]
+    static_configs:
+      - targets: [
+		'213.199.48.111'		
+	        ]
+    relabel_configs:
+      # Ensure port is 25, pass as URL parameter
+      - source_labels: [__address__]
+        regex: (.*)(:.*)?
+        replacement: ${1}:587
+        target_label: __param_target
+      # Make instance label the target
+      - source_labels: [__param_target]
+        target_label: instance
+      # Actually talk to the blackbox exporter though
+      - target_label: __address__
+        replacement: blackbox:9115
+
+  - job_name: 'smtp_status'
+    metrics_path: /probe
+    params:
+      module: [tcp_connect]
+    static_configs:
+      - targets: [
+                '213.199.48.111'
+                ]
+    relabel_configs:
+      # Ensure port is 25, pass as URL parameter
+      - source_labels: [__address__]
+        regex: (.*)(:.*)?
+        replacement: ${1}:25
+        target_label: __param_target
+      # Make instance label the target
+      - source_labels: [__param_target]
+        target_label: instance
+      # Actually talk to the blackbox exporter though
+      - target_label: __address__
+        replacement: blackbox:9115
